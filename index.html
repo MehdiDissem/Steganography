@@ -32,6 +32,10 @@
           let data = imgData.data;
           let textBinary = textToBinary(text);
           let changedPixels = [];
+
+          // Append termination marker to the binary representation of the hidden text
+          textBinary += "00000000";
+
           console.log("before ", data, textBinary);
 
           // Iterate over each bit of the binary text
@@ -71,12 +75,22 @@
           const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           let data = imgData.data;
           let textBinary = "";
+          let terminationMarker = "00000000";
 
           // Extract the least significant bit from the blue channel of each pixel
           for (let i = 0; i < data.length; i += 4) {
-            let color = data[i + 2];
-            let bit = color % 2;
+            let color = data[i + 2]; // Blue channel value
+            let bit = color % 2; // Extract the LSB
+            // Append the extracted bit to the binary string
             textBinary += bit;
+
+            // Check if the termination marker is found
+            if (textBinary.endsWith(terminationMarker)) {
+              // Remove the termination marker from the textBinary string
+              textBinary = textBinary.slice(0, -terminationMarker.length);
+              break;
+            }
+            
           }
 
           let text = binaryToText(textBinary);
